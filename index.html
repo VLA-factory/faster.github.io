@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FASTer — Action Tokens as a Foreign Language</title>
+  <meta name="description" content="FASTer: Toward Efficient Autoregressive Vision-Language-Action Modeling via Neural Action Tokenization. ICLR 2026." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="FASTer — Action Tokens as a Foreign Language" />
+  <meta property="og:description" content="Efficient autoregressive VLA modeling via a learnable neural action tokenizer. ICLR 2026." />
+  <meta property="og:image" content="static/images/teaser.png" />
+  <meta property="og:type" content="website" />
+
+  <!-- Fonts & icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="static/css/style.css" />
+</head>
+<body>
+
+  <!-- ============ NAV ============ -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <span class="nav-brand">FAST<b>er</b></span>
+      <div class="nav-links">
+        <a href="#abstract">Abstract</a>
+        <a href="#language">Foreign Language</a>
+        <a href="#designs">Designs</a>
+        <a href="#experiments">Experiments</a>
+        <a href="#takeaways">Takeaways</a>
+        <a href="#bibtex">BibTeX</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="wrap">
+    <span class="badge-conf">ICLR 2026</span>
+    <h1>
+      <span class="wordmark">FASTer</span>: Toward Efficient Autoregressive<br />
+      Vision-Language-Action Modeling<br />
+      via Neural Action Tokenization
+    </h1>
+    <p class="tagline">Action Tokens as a Foreign Language</p>
+
+    <p class="authors">
+      <span class="author-line">
+        Yicheng Liu<sup>1,4,§</sup>,
+        Shiduo Zhang<sup>2,3,§,*</sup>,
+        Zibin Dong<sup>1,5,*</sup>,
+        Baijun Ye<sup>1,*</sup>,
+        Tianyuan Yuan<sup>1,4</sup>,
+        Xiaopeng Yu<sup>2,3</sup>
+      </span>
+      <span class="author-line">
+        Linqi Yin<sup>2,3</sup>,
+        Chenhao Lu<sup>1,4</sup>,
+        Junhao Shi<sup>2,3</sup>,
+        Luca Jiang-Tao Yu<sup>6</sup>,
+        Liangtao Zheng<sup>7</sup>,
+        Tao Jiang<sup>4</sup>
+      </span>
+      <span class="author-line">
+        Jingjing Gong<sup>3,†</sup>,
+        Xipeng Qiu<sup>2,3,†</sup>,
+        Hang Zhao<sup>1,4,†</sup>
+      </span>
+    </p>
+    <p class="affils">
+      <sup>1</sup>Tsinghua University &nbsp;·&nbsp;
+      <sup>2</sup>Fudan University &nbsp;·&nbsp;
+      <sup>3</sup>Shanghai Innovation Institute &nbsp;·&nbsp;
+      <sup>4</sup>Galaxea AI &nbsp;·&nbsp;
+      <sup>5</sup>Tianjin University &nbsp;·&nbsp;
+      <sup>6</sup>Hong Kong University &nbsp;·&nbsp;
+      <sup>7</sup>UCSD
+    </p>
+    <p class="notes">
+      <sup>§</sup> Project leaders &nbsp;·&nbsp; <sup>*</sup> Equal contribution &nbsp;·&nbsp; <sup>†</sup> Corresponding authors
+    </p>
+
+    <div class="btn-row">
+      <a class="btn" href="https://arxiv.org/abs/2512.04952" target="_blank" rel="noopener">
+        <i class="fa-solid fa-file-lines"></i> arXiv
+      </a>
+      <a class="btn" href="https://github.com/VLA-factory/CAT" target="_blank" rel="noopener">
+        <i class="fa-brands fa-github"></i> Code
+      </a>
+      <a class="btn" href="https://github.com/VLA-factory/CAT" target="_blank" rel="noopener">
+        <i class="fa-solid fa-cube"></i> Models
+      </a>
+      <a class="btn" href="https://medium.com/@shiduozh1225/from-faster-to-g05-where-should-autoregressive-vlas-go-from-here-b885ff2f46fd" target="_blank" rel="noopener">
+        <i class="fa-solid fa-pen-nib"></i> Blog
+      </a>
+    </div>
+
+    <figure class="hero-fig">
+      <img src="static/images/teaser.png" alt="FASTer overview teaser: a learnable action tokenizer (FASTerVQ) and an autoregressive policy (FASTerVLA) achieving high compression, fast control, and strong performance across eight real and simulated embodiments." />
+    </figure>
+    </div>
+  </header>
+
+  <!-- ============ ABSTRACT ============ -->
+  <section id="abstract" class="wrap">
+    <p class="section-kicker">Abstract</p>
+    <h2 class="section-title">A unified framework for efficient autoregressive VLAs</h2>
+    <div class="abstract-card">
+      <p>
+        Autoregressive vision-language-action (VLA) models have recently demonstrated strong
+        capabilities in robotic manipulation. However, their core process of action tokenization
+        often involves a trade-off between reconstruction fidelity and inference efficiency. We
+        introduce <b>FASTer</b>, a unified framework that integrates a learnable tokenizer with an
+        autoregressive policy built upon it. <b>FASTerVQ</b> encodes action chunks as single-channel
+        images, capturing global spatio-temporal dependencies while maintaining a high compression
+        ratio. <b>FASTerVLA</b> builds on this tokenizer with block-wise autoregressive decoding and a
+        lightweight action expert, achieving both faster inference and higher task performance.
+        Extensive experiments across simulated and real-world benchmarks show that FASTerVQ delivers
+        superior reconstruction quality, high token utilization, and strong cross-task and
+        cross-embodiment generalization, while FASTerVLA surpasses previous state-of-the-art VLA
+        models in both inference speed and task performance.
+      </p>
+    </div>
+  </section>
+
+  <hr class="section-rule" />
+
+  <!-- ============ FOREIGN LANGUAGE ============ -->
+  <section id="language" class="wrap">
+    <p class="section-kicker">The Problem</p>
+    <h2 class="section-title">Action tokens are a foreign language</h2>
+    <p class="section-sub">
+      Large language models have already mastered nearly every human language. We can treat a
+      sequence of <i>action tokens</i> as one more — a language humans cannot read, but that a
+      sufficiently powerful sequence model can fit. From this view, designing an action tokenizer is
+      designing a language for the policy to learn. Just like learning a human language, three
+      properties decide whether that language is any good.
+    </p>
+
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="card-icon"><i class="fa-solid fa-spell-check"></i></div>
+        <span class="card-tag">Correctness</span>
+        <h3>Accuracy</h3>
+        <p>
+          Spelling <i>apple</i> as <i>Appl</i> changes its meaning. For actions, this is
+          reconstruction: if discretized codes decode back a few centimeters off the original
+          motion, the policy has simply learned the wrong target. The tokenizer must guarantee high
+          reconstruction fidelity rather than pursue compression at the expense of accuracy.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><i class="fa-solid fa-equals"></i></div>
+        <span class="card-tag">Precision &amp; Similarity</span>
+        <h3>Unambiguity</h3>
+        <p>
+          A word that means many different things is hard to learn. We want similar action chunks to
+          map to similar tokens, and a vocabulary that is evenly used rather than collapsed onto a few
+          high-frequency codes — a balanced, information-rich representation the VLM can learn cleanly.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
+        <span class="card-tag">Efficiency</span>
+        <h3>Learning curvature</h3>
+        <p>
+          A language is only useful if it is learnable and fast to use. The tokenizer must reach a
+          minimal token count for long, high-DoF sequences — enabling efficient inference — while
+          staying flexible across backbones, tasks, and embodiments out of the box.
+        </p>
+      </div>
+    </div>
+
+    <p class="section-sub" style="margin-top:34px;">
+      Concretely, the paper distills these into four requirements for an effective action tokenizer:
+      <b>(i) high compression efficiency</b>, <b>(ii) robust reconstruction quality</b>,
+      <b>(iii) 2D structural modeling</b> of the action and temporal dimensions, and
+      <b>(iv) flexibility</b> across backbones, tasks, and embodiments. Existing tokenizers
+      (FAST, MiniVLA, VQ-VLA) each fail one or more of these — FASTer is built to satisfy all four.
+    </p>
+  </section>
+
+  <hr class="section-rule" />
+
+  <!-- ============ KEY DESIGNS ============ -->
+  <section id="designs" class="wrap">
+    <p class="section-kicker">Method</p>
+    <h2 class="section-title">Key designs</h2>
+    <p class="section-sub">
+      FASTer pairs a codec-inspired action tokenizer with an autoregressive policy designed around
+      its structured latent space.
+    </p>
+
+    <div class="design-block">
+      <div class="design-head">
+        <h3>FASTerVQ</h3>
+        <span class="pill">Tokenizer</span>
+      </div>
+      <p class="section-sub" style="margin-bottom:18px;">
+        A learnable tokenizer that treats an action chunk as a single-channel 2D image and compresses
+        it with residual vector quantization — balancing fidelity and compression.
+      </p>
+      <figure class="fig">
+        <img src="static/images/fastervq.png" alt="FASTerVQ architecture: action patchifier and a Transformer-based residual vector quantization pipeline with DCT and time-domain reconstruction losses." />
+        <figcaption>
+          The raw action sequence is patchified by embodied configuration, then encoded by a
+          Transformer autoencoder and quantized via RVQ into <i>N<sub>c</sub></i> coarse-to-fine code levels.
+        </figcaption>
+      </figure>
+      <ul class="feature-list">
+        <li><b>Action patchifier.</b> A 2D, non-uniform grouping along time (uniform) and action
+          dimensions (grouped by physical semantics — e.g. end-effector position, orientation,
+          gripper), mitigating distributional imbalance and boosting information density per token.</li>
+        <li><b>Transformer RVQ (TAAE).</b> A hybrid transformer–convolution encoder–decoder with
+          residual vector quantization, giving a natural <b>coarse-to-fine</b> structure: early
+          stages capture low-frequency motion, later stages refine high-frequency residuals.</li>
+        <li><b>Dual-domain objective.</b> An L1 reconstruction loss in both the <b>time domain</b> and
+          the <b>DCT frequency domain</b>, capturing local dynamics and global trends together;
+          robust to extreme-value sensor noise.</li>
+      </ul>
+    </div>
+
+    <div class="design-block">
+      <div class="design-head">
+        <h3>FASTerVLA</h3>
+        <span class="pill">Policy</span>
+      </div>
+      <p class="section-sub" style="margin-bottom:18px;">
+        An autoregressive VLA built on FASTerVQ's structured codes, designed for fast and stable
+        decoding.
+      </p>
+      <figure class="fig">
+        <img src="static/images/fastervla.png" alt="FASTerVLA architecture: a VLM backbone with a lightweight action expert that autoregressively generates discrete action tokens, decoded by the VQ decoder, with block-wise causal masking." />
+        <figcaption>
+          A VLM backbone encodes the multimodal context once; a lightweight action expert
+          autoregressively decodes discrete action tokens that the VQ decoder maps to continuous actions.
+        </figcaption>
+      </figure>
+      <ul class="feature-list">
+        <li><b>Block-wise autoregression (BAR).</b> Action codes across dimensions are only weakly
+          coupled, so BAR predicts a whole block of tokens per forward pass under a block-wise causal
+          mask — cutting forward passes from <i>N</i> to ≈ <i>N/B</i> with up to a <b>3×</b> latency
+          reduction, and even improving accuracy.</li>
+        <li><b>Coarse-to-fine decoding order.</b> Codes are generated codebook-wise before advancing
+          along the temporal horizon, aligning with the residual quantization pipeline for greater
+          stability than horizon-first decoding.</li>
+        <li><b>Lightweight action expert.</b> A π<sub>0</sub>-style expert sharing the backbone
+          architecture but with far fewer parameters, bridging linguistic reasoning and continuous
+          control while protecting pretrained weights.</li>
+        <li><b>RoPE + spacing augmentation.</b> Jittered token spacing during training prevents
+          position overfitting on fixed-length action targets, so the model relies on content rather
+          than absolute position.</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="section-rule" />
+
+  <!-- ============ EXPERIMENTS ============ -->
+  <section id="experiments" class="wrap">
+    <p class="section-kicker">Results</p>
+    <h2 class="section-title">Experiments</h2>
+    <p class="section-sub">
+      Evaluated across nine benchmarks spanning five embodiments, in both simulation and the real
+      world — covering deformable manipulation, whole-body control, instruction following, and
+      long-horizon tasks.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat"><div class="num">97.9<small>%</small></div><div class="lbl">LIBERO success rate (new SOTA)</div></div>
+      <div class="stat"><div class="num">87.9<small>%</small></div><div class="lbl">Simpler-Bridge, +12.9% over 2nd best</div></div>
+      <div class="stat"><div class="num">0.91</div><div class="lbl">Normalized vocabulary entropy</div></div>
+      <div class="stat"><div class="num">3×</div><div class="lbl">Faster inference vs. π<sub>0</sub></div></div>
+    </div>
+
+    <!-- Tokenizer -->
+    <h3 class="exp-sub">FASTerVQ: fidelity, compression &amp; data scaling</h3>
+    <div class="grid grid-2">
+      <figure class="fig">
+        <img src="static/images/vrr.png" alt="Mean Valid Reconstruction Rate of different action tokenizers across error tolerances. FASTer leads at every scale and shows clear data scaling." />
+        <figcaption>
+          Mean <b>VRR</b> across error tolerances σ. FASTer leads at all scales and shows clear
+          data-scaling (S → L → XL), reaching near-lossless reconstruction at the physically
+          meaningful σ = 10<sup>-3</sup>.
+        </figcaption>
+      </figure>
+      <figure class="fig">
+        <img src="static/images/compression.png" alt="Compression rate versus reconstruction trade-off across action horizons; FASTer achieves the best balance, especially for long high-frequency sequences." />
+        <figcaption>
+          Compression vs. reconstruction across horizons. FASTer achieves the best trade-off,
+          especially on long, high-frequency action sequences.
+        </figcaption>
+      </figure>
+    </div>
+    <figure class="fig fig-narrow" style="margin-top:22px;">
+      <img src="static/images/cross_embodiment.png" alt="FASTer generalizes across embodiments and action types — joint velocity, absolute and delta joint positions — with a clear scaling trend." />
+      <figcaption>
+        Trained only on single-arm delta-EEF trajectories, FASTerVQ still reconstructs unseen
+        embodiments and <b>action types</b> (joint velocity, absolute / delta joint positions),
+        evidence of a transferable action prior.
+      </figcaption>
+    </figure>
+
+    <!-- VLA -->
+    <h3 class="exp-sub">FASTerVLA: in-distribution &amp; zero-shot</h3>
+    <div class="grid grid-2">
+      <figure class="fig">
+        <img src="static/images/realexp.png" alt="Policy performance across embodiments and environments, covering two real-world embodiments and three simulated setups." />
+        <figcaption>
+          In-distribution performance across two real-world embodiments and three simulated setups —
+          FASTerVLA consistently leads.
+        </figcaption>
+      </figure>
+      <figure class="fig">
+        <img src="static/images/zeroshot.png" alt="Zero-shot performance comparison between FASTer and baselines on Droid and Bridge datasets." />
+        <figcaption>
+          Zero-shot transfer on Bridge and Droid. FASTerVLA reaches the highest task progress, on par
+          with FAST+ and far above π<sub>0</sub> and FAST.
+        </figcaption>
+      </figure>
+    </div>
+    <figure class="fig fig-narrow" style="margin-top:22px;">
+      <img src="static/images/vlabench.png" alt="Generalization results on VLABench across language, vision, goal, and knowledge transfer dimensions." />
+      <figcaption>
+        VLABench generalization (language, vision, goal &amp; knowledge transfer): FASTerVLA attains
+        the highest overall success with the lowest relative drop (29%) from its in-distribution baseline.
+      </figcaption>
+    </figure>
+
+    <!-- Vocabulary -->
+    <h3 class="exp-sub">Why it generalizes: a balanced vocabulary</h3>
+    <p class="section-sub">
+      On BridgeData, FASTerVQ uses its codebook fully and evenly. Balanced, information-rich token
+      usage — rather than a few dominant codes — is what unlocks autoregressive generalization.
+    </p>
+    <div class="table-card">
+      <table class="data">
+        <thead>
+          <tr><th>Tokenizer</th><th>Codebook utilization</th><th>Max token freq. F<sub>max</sub></th><th>Normalized entropy</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>FAST</td><td>48% of 2048</td><td>10%</td><td>0.69</td></tr>
+          <tr><td>FAST+</td><td>57% of 2048</td><td>—</td><td>0.77</td></tr>
+          <tr><td><b>FASTerVQ</b></td><td class="best">100% of 4096</td><td class="best">low</td><td class="best">0.91</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Cross-backbone + inference -->
+    <h3 class="exp-sub">Cross-backbone &amp; inference efficiency</h3>
+    <div class="grid grid-2">
+      <figure class="fig">
+        <img src="static/images/backbone.png" alt="Comparison of FASTer, its non-BAR variant, and FAST across VLM backbones on the LIBERO benchmark." />
+        <figcaption>
+          FASTer improves every backbone (PaliGemma, Qwen2.5, InternVL3.5) — raising InternVL3.5-2B by
+          <b>+17.3%</b> to 96.65%, from weakest with FAST to strongest overall.
+        </figcaption>
+      </figure>
+      <div>
+        <div class="table-card">
+          <table class="data">
+            <thead>
+              <tr><th>Model</th><th>LIBERO (single)</th><th>R1Lite WBC</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><b>FASTerVLA</b></td><td class="best">112 ms</td><td class="best">~230 ms</td></tr>
+              <tr><td>π<sub>0</sub></td><td>176 ms</td><td>~230 ms</td></tr>
+              <tr><td>π<sub>0</sub>-FAST</td><td>197–556 ms</td><td>1,100–3,000 ms</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-note">
+          PyTorch, single batch on an RTX 5090. In whole-body control, π<sub>0</sub>-FAST pays a steep
+          cost for its long token sequences; FASTerVLA stays fast via block-wise decoding.
+        </p>
+      </div>
+    </div>
+
+    <!-- Rollouts -->
+    <h3 class="exp-sub">Real-world rollouts</h3>
+    <div class="rollouts">
+      <img src="static/images/real_experiment.png" alt="Real-world manipulation rollouts of FASTerVLA across tasks." />
+      <img src="static/images/real_experiment2.png" alt="Additional real-world manipulation rollouts of FASTerVLA." />
+    </div>
+  </section>
+
+  <hr class="section-rule" />
+
+  <!-- ============ TAKEAWAYS ============ -->
+  <section id="takeaways" class="wrap">
+    <p class="section-kicker">Conclusion</p>
+    <h2 class="section-title">Takeaways</h2>
+    <ul class="takeaway-list">
+      <li><b>A good action language is learnable, not just correct.</b> Coupling a codec-inspired RVQ
+        tokenizer with an autoregressive policy yields strong task performance at low-latency inference.</li>
+      <li><b>Three ideas drive it:</b> an RVQ balancing accuracy, diversity, and code length; block-wise
+        autoregressive decoding for fast, expressive inference; and a lightweight action expert for the
+        VLM backbone.</li>
+      <li><b>Reusable and transferable.</b> The pretrained VQ generalizes across tasks, embodiments, and
+        action representations, and can be reused in downstream tasks without retraining.</li>
+      <li><b>Autoregressive modeling can be fast, transferable, and scalable</b> for multimodal action
+        generation — rivaling and surpassing diffusion-based approaches.</li>
+    </ul>
+
+    <div class="series-note">
+      FASTer is one step in a larger line of work on autoregressive VLAs — from <b>FASTer</b> to
+      <b>ActionCodec</b>, <b>Coarse-to-Control</b>, and the <b>G05</b> model. For the full story behind
+      "action tokens as a foreign language," read the blog:
+      <a href="https://medium.com/@shiduozh1225/from-faster-to-g05-where-should-autoregressive-vlas-go-from-here-b885ff2f46fd" target="_blank" rel="noopener">From FASTer to G05 — where should autoregressive VLAs go from here?</a>
+    </div>
+  </section>
+
+  <hr class="section-rule" />
+
+  <!-- ============ BIBTEX ============ -->
+  <section id="bibtex" class="wrap">
+    <p class="section-kicker">Cite</p>
+    <h2 class="section-title">BibTeX</h2>
+    <div class="bibtex-wrap">
+      <button class="copy-btn" id="copyBtn"><i class="fa-regular fa-copy"></i> Copy</button>
+      <pre class="bibtex" id="bibtex">@inproceedings{liu2026faster,
+  title     = {FASTer: Toward Efficient Autoregressive Vision-Language-Action
+               Modeling via Neural Action Tokenization},
+  author    = {Liu, Yicheng and Zhang, Shiduo and Dong, Zibin and Ye, Baijun and
+               Yuan, Tianyuan and Yu, Xiaopeng and Yin, Linqi and Lu, Chenhao and
+               Shi, Junhao and Yu, Luca Jiang-Tao and Zheng, Liangtao and Jiang, Tao and
+               Gong, Jingjing and Qiu, Xipeng and Zhao, Hang},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2026},
+  url       = {https://arxiv.org/abs/2512.04952}
+}</pre>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="foot-affils">
+      Tsinghua University · Fudan University · Shanghai Innovation Institute · Galaxea AI ·
+      Tianjin University · Hong Kong University · UCSD
+    </div>
+    <div>
+      <a href="https://arxiv.org/abs/2512.04952" target="_blank" rel="noopener">arXiv</a> ·
+      <a href="https://github.com/VLA-factory/CAT" target="_blank" rel="noopener">Code</a> ·
+      <a href="https://medium.com/@shiduozh1225/from-faster-to-g05-where-should-autoregressive-vlas-go-from-here-b885ff2f46fd" target="_blank" rel="noopener">Blog</a>
+    </div>
+    <div class="foot-credit">© 2026 FASTer authors. Website content licensed under CC BY 4.0.</div>
+  </footer>
+
+  <script src="static/js/main.js"></script>
+</body>
+</html>

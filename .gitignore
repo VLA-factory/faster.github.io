@@ -1,0 +1,12 @@
+# Internal draft — not part of the published site
+blog.md
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+*.tmp
